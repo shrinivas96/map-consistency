@@ -88,9 +88,17 @@ g2o::SparseOptimizer *HypothesisTester::clone(
     typedef g2o::OptimizationAlgorithmGaussNewton OptimizationAlgorithm;
 
     g2o::SparseOptimizer *soclone = new g2o::SparseOptimizer();
-    SlamLinearSolver *linearSolver = new SlamLinearSolver();
-    SlamBlockSolver *blockSolver = new SlamBlockSolver(linearSolver);
-    OptimizationAlgorithm *solverAlg = new OptimizationAlgorithm(blockSolver);
+    // these were the original lines; created some errors along the lines of wrong args in call to function
+    // SlamLinearSolver *linearSolver = new SlamLinearSolver();
+    // SlamBlockSolver *blockSolver = new SlamBlockSolver(linearSolver);
+    // OptimizationAlgorithm *solverAlg = new OptimizationAlgorithm(blockSolver);
+    
+    // these lines were given by chatGPT by passing the code and the error messages
+    std::unique_ptr<SlamLinearSolver> linearSolver(new SlamLinearSolver());
+    std::unique_ptr<SlamBlockSolver> blockSolver(new SlamBlockSolver(std::move(linearSolver)));
+    std::unique_ptr<g2o::Solver> solver(std::move(blockSolver));
+    OptimizationAlgorithm *solverAlg = new OptimizationAlgorithm(std::move(solver));
+    // std::unique_ptr<OptimizationAlgorithm> solverAlg(new OptimizationAlgorithm(std::move(blockSolver)));
 
     linearSolver->setBlockOrdering(false);
     solverAlg->setWriteDebug(false);
