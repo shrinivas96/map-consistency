@@ -22,7 +22,7 @@
 #include "mapquality.h"
 #include <vector>
 #include <map>
-#include <Eigen/Core>
+#include <eigen3/Eigen/Core>
 #include <g2o/core/sparse_optimizer.h>
 #include <g2o/core/robust_kernel_impl.h>
 #include <g2o/core/optimization_algorithm.h>

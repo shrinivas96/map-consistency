@@ -23,7 +23,7 @@
 #define HYPOTHESISTESTER_H_
 
 #include "hypothesistesteroptions.h"
-#include <Eigen/Core>
+#include <eigen3/Eigen/Core>
 #include <vector>
 
 namespace g2o { class SparseOptimizer; }

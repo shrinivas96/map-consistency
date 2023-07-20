@@ -20,7 +20,8 @@
  */
 
 #include <pthread.h>
-#include <Eigen/Core>
+#include <eigen3/Eigen/Core>
+#include <unistd.h>
 
 namespace consist {
 

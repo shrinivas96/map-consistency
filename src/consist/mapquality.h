@@ -22,7 +22,7 @@
 #ifndef MAPQUALITY_H_
 #define MAPQUALITY_H_
 
-#include <Eigen/Core>
+#include <eigen3/Eigen/Core>
 #include "visibility.h"
 #include "mapqualityoptions.h"
 
