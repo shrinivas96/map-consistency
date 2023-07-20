@@ -9,14 +9,45 @@ SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 FIND_PACKAGE(BLAS REQUIRED)
 FIND_PACKAGE(Eigen3 REQUIRED)
 FIND_PACKAGE(Cholmod REQUIRED)
-FIND_PACKAGE(G2O REQUIRED)
+FIND_PACKAGE(G2O REQUIRED)          # returns system g2o somehow
+# add_subdirectory(libs/g2o)        # to allow it to find g2o in the same project
 # Called by FindQGLViewer
 # FIND_PACKAGE(Qt4)
 FIND_PACKAGE(QGLViewer)
 FIND_PACKAGE(OpenGL)
 FIND_PACKAGE(Doxygen)
 
-IF(QGLVIEWER_LIBRARY AND QT4_FOUND AND OPENGL_FOUND)
+# set(DEBUG_MSGS TRUE)
+if (DEBUG_MSGS)
+    message(STATUS "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+
+    # if using add_subdirectory, g2o/CMakeLists.txt should set these varaibles.
+    # i think these should be linked to the targets to make everything work
+    # and the binary dir should be added to the include_directories()
+    message(STATUS ${g2o_LIBRARY_OUTPUT_DIRECTORY})
+    message(STATUS ${g2o_BINARY_DIR})
+
+    # prints yes if found. if this is not founf see FindG2O.cmake file once
+    message(STATUS "G2O FOUND: ")
+    message(STATUS ${G2O_FOUND})
+
+    # location of where G2O was found
+    message(STATUS "G2O INCLUDE DIRS: ")
+    message(STATUS ${G2O_INCLUDE_DIRS}) 
+
+    message(STATUS "G2O Link Libraries: ")
+    message(STATUS ${G2O_LINK_LIBRARIES}) 
+
+    # this is where g2o should have been found
+    message(STATUS "location")
+    message(STATUS ${PROJECT_SOURCE_DIR}/libs/g2o)
+
+    message(STATUS "G2O Solvers: ")
+    message(STATUS ${G2O_SOLVER_CHOLMOD})
+    message(STATUS "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+endif ()
+
+IF(QGLVIEWER_LIBRARY AND QT5_FOUND AND OPENGL_FOUND)
 	MESSAGE(STATUS "Enabling GUI support")
 	SET(WITH_GUI TRUE)
 ELSE()
@@ -27,6 +58,10 @@ ENDIF()
 INCLUDE_DIRECTORIES(${EIGEN3_INCLUDE_DIR})
 INCLUDE_DIRECTORIES(${CHOLMOD_INCLUDE_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/src)
+INCLUDE_DIRECTORIES(${G2O_INCLUDE_DIRS})                    # this variable is set by FindG2o.cmake; currently finds the ros installation
+# INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/libs/g2o)       # when it was unable to find the headers.
+# INCLUDE_DIRECTORIES(${PROJECT_BINARY_DIR})
+# INCLUDE_DIRECTORIES(${g2o_BINARY_DIR})                    # useful to include when add_subdirectory for g2o is the case
 
 IF(DOXYGEN_FOUND)
     MESSAGE(STATUS "Enabling documentation build")
@@ -105,7 +140,8 @@ TARGET_LINK_LIBRARIES(optimizer
     ${G2O_STUFF_LIBRARY}
     ${G2O_TYPES_SLAM2D}
     ${G2O_TYPES_DATA}
-    ${G2O_SOLVER_CHOLMOD})
+    ${G2O_SOLVER_CHOLMOD}
+    ${g2o_LIBRARY_OUTPUT_DIRECTORY})            # added here because I thought this would help. 
     
 TARGET_LINK_LIBRARIES(tester
 	consist
@@ -116,5 +152,6 @@ TARGET_LINK_LIBRARIES(tester
     ${G2O_STUFF_LIBRARY}
     ${G2O_TYPES_SLAM2D}
     ${G2O_TYPES_DATA}
-    ${G2O_SOLVER_CHOLMOD})
+    ${G2O_SOLVER_CHOLMOD}
+    ${g2o_LIBRARY_OUTPUT_DIRECTORY})            # added here because I thought this would help. 
 
