@@ -4,13 +4,17 @@ PROJECT(consist)
 SET(CMAKE_BUILD_TYPE Release)
 #SET(CMAKE_BUILD_TYPE Debug)
 
+# not including this line gives the error: `undefined reference to symbol 'pthread_join@@GLIBC_2.2.5'` AND `DSO missing from command line`
+# source to fix this line: https://stackoverflow.com/a/61439452/6609148
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread") 
+
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 FIND_PACKAGE(BLAS REQUIRED)
 FIND_PACKAGE(Eigen3 REQUIRED)
 FIND_PACKAGE(Cholmod REQUIRED)
 FIND_PACKAGE(G2O REQUIRED)          # returns system g2o somehow
-# add_subdirectory(libs/g2o)        # to allow it to find g2o in the same project
+# add_subdirectory(libs/g2o)        # to allow it to find g2o in the same project; does NOT work completely for now
 # Called by FindQGLViewer
 # FIND_PACKAGE(Qt4)
 FIND_PACKAGE(QGLViewer)
@@ -27,7 +31,9 @@ if (DEBUG_MSGS)
     message(STATUS ${g2o_LIBRARY_OUTPUT_DIRECTORY})
     message(STATUS ${g2o_BINARY_DIR})
 
-    # prints yes if found. if this is not founf see FindG2O.cmake file once
+    message(STATUS "TARGETS ${G2O_CORE_LIBRARY}, ${G2O_STUFF_LIBRARY}, ${G2O_TYPES_SLAM2D}, ${G2O_TYPES_DATA}, ${G2O_SOLVER_CHOLMOD},")
+
+    # prints yes if found. if this is not found see FindG2O.cmake file once
     message(STATUS "G2O FOUND: ")
     message(STATUS ${G2O_FOUND})
 
@@ -61,7 +67,7 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/src)
 INCLUDE_DIRECTORIES(${G2O_INCLUDE_DIRS})                    # this variable is set by FindG2o.cmake; currently finds the ros installation
 # INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/libs/g2o)       # when it was unable to find the headers.
 # INCLUDE_DIRECTORIES(${PROJECT_BINARY_DIR})
-# INCLUDE_DIRECTORIES(${g2o_BINARY_DIR})                    # useful to include when add_subdirectory for g2o is the case
+# INCLUDE_DIRECTORIES(${g2o_BINARY_DIR})                    # should include when add_subdirectory for g2o is the case
 
 IF(DOXYGEN_FOUND)
     MESSAGE(STATUS "Enabling documentation build")
