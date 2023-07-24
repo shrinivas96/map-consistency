@@ -1,15 +1,18 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 PROJECT(consist)
 
-SET(CMAKE_BUILD_TYPE Release)
-#SET(CMAKE_BUILD_TYPE Debug)
+# SET(CMAKE_BUILD_TYPE Release)
+SET(CMAKE_BUILD_TYPE Debug)
 
-# not including this line gives the error: `undefined reference to symbol 'pthread_join@@GLIBC_2.2.5'` AND `DSO missing from command line`
+# not including this line gave the error: `undefined reference to symbol 'pthread_join@@GLIBC_2.2.5'` AND `DSO missing from command line`
 # source to fix this line: https://stackoverflow.com/a/61439452/6609148
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread") 
+# the better way to do it: https://stackoverflow.com/a/29871891/6609148
+# SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread") 
+# set(THREADS_PREFER_PTHREAD_FLAG ON)
 
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
+FIND_PACKAGE(Threads REQUIRED)
 FIND_PACKAGE(BLAS REQUIRED)
 FIND_PACKAGE(Eigen3 REQUIRED)
 FIND_PACKAGE(Cholmod REQUIRED)
@@ -147,7 +150,7 @@ TARGET_LINK_LIBRARIES(optimizer
     ${G2O_TYPES_SLAM2D}
     ${G2O_TYPES_DATA}
     ${G2O_SOLVER_CHOLMOD}
-    ${g2o_LIBRARY_OUTPUT_DIRECTORY})            # added here because I thought this would help. 
+    Threads::Threads)          # Threads::Threads or ${CMAKE_THREAD_LIBS_INIT}
     
 TARGET_LINK_LIBRARIES(tester
 	consist
@@ -159,5 +162,4 @@ TARGET_LINK_LIBRARIES(tester
     ${G2O_TYPES_SLAM2D}
     ${G2O_TYPES_DATA}
     ${G2O_SOLVER_CHOLMOD}
-    ${g2o_LIBRARY_OUTPUT_DIRECTORY})            # added here because I thought this would help. 
-
+    Threads::Threads)          # Threads::Threads or ${CMAKE_THREAD_LIBS_INIT}

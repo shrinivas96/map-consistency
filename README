@@ -1,6 +1,31 @@
 Consist readme
 --------------
 
+This package's orginal authors are Mladen Mazuran, Gian Diego Tipaldi, Luciano Spinello, Wolfram Burgard and Cyrill Stachniss, from the paper "A Statistical Measure for Map Consistency in SLAM". The surce code was taken from the [main project webpage](http://www2.informatik.uni-freiburg.de/~mazuran/consist.html). As is, the code available on their website did not compile. Probably because the code was written in 2014. This repository is an attempt to fix all of the errors so that the project compiles. The main changes are:
+ - `src/consist/hypothesistester.cpp`, `src/optimizer/optimizer.cpp` and `src/tester/tester.cpp` had the following three lines of code which used to raise errors.
+    ```cpp
+    SlamLinearSolver *linearSolver = new SlamLinearSolver();
+    SlamBlockSolver *blockSolver = new SlamBlockSolver(linearSolver);
+    OptimizationAlgorithm *solverAlg = new OptimizationAlgorithm(blockSolver);
+    ```
+    The followig replacement lines were suggested by ChatGPT because I had no idea how to fix them
+    ```cpp
+    std::unique_ptr<SlamLinearSolver> linearSolver(new SlamLinearSolver());
+    std::unique_ptr<SlamBlockSolver> blockSolver(new SlamBlockSolver(std::move(linearSolver)));
+    std::unique_ptr<g2o::Solver> solver(std::move(blockSolver));
+    OptimizationAlgorithm *solverAlg = new OptimizationAlgorithm(std::move(solver));
+    ```
+
+ - `cmake/FindQGLViewer.cmake` tried to find Qt4, and CMake always complained as a result, because Ubuntu 20.04 and above had no Qt4. The solution was to take the updated `FindQGLViewer.cmake` from the G2O's current repository (because as the authors note, the old `FindQGLViewer.cmake` was also "shamelessly stolen from g2o"). `cmake/FindG2O.cmake` is also updated to the latest one from g2o. 
+
+ - Added `find_package(Threads)` because of the linker error of not being able to find the `libpthread.so.0` object. [Source for fix](https://stackoverflow.com/a/29871891/6609148).
+
+  - References to `#include<Eigen/...>` replaced with `#include<eigen3/Eigen/...>` because compiler complained.
+ 
+
+Original README starts here:
+
+
 The package has the following dependencies:
  - g2o (with Cholmod support)
  - Cholmod + BLAS
